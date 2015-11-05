@@ -30,9 +30,16 @@ CREATE TABLE matches (
 -- Creates a view to know the current standing of a player at a given moment
 
 CREATE VIEW standings AS 
-	SELECT players.id, players.name, count(matches.winner) as wins, count(matches.winner) + count(matches.loser) as played
-	FROM players, matches
-	GROUP BY players.id;
+SELECT players.id as ID_player,
+   	   players.name as Name_player, 
+ 	   (SELECT count(*) 
+ 	   	  FROM matches 
+     	 WHERE winner = players.id OR loser = players.id) AS played,   
+ 	   (SELECT count(*) 
+ 	   	  FROM matches 
+ 	   	  WHERE winner = players.id) AS wins 
+  FROM players 
+  ORDER BY wins DESC;
 
 
 
