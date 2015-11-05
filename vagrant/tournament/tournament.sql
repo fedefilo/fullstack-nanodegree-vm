@@ -27,7 +27,7 @@ CREATE TABLE matches (
 	CONSTRAINT no_self CHECK (winner != loser)
 );
 
--- Creates a view to know the current standing of a player at a given moment
+-- Creates a view to know the current standing of players at a given moment
 
 CREATE VIEW standings AS 
 SELECT players.id as ID_player,
