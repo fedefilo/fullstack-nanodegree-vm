@@ -13,15 +13,30 @@ def connect():
 
 def deleteMatches():
     """Remove all the match records from the database."""
+    connection = connect()
+    cursor = connection.cursor()
+    cursor.execute("DELETE FROM matches")
+    connection.commit()
+    connection.close()
+    
 
 
 def deletePlayers():
     """Remove all the player records from the database."""
-
+    connection = connect()
+    cursor = connection.cursor()
+    cursor.execute("DELETE FROM players")
+    connection.commit()
+    connection.close()
 
 def countPlayers():
     """Returns the number of players currently registered."""
-
+    connection = connect()
+    cursor = connection.cursor()
+    cursor.execute("SELECT count(*) FROM players")
+    result = cursor.fetchall()[0][0]
+    connection.close()
+    return result
 
 def registerPlayer(name):
     """Adds a player to the tournament database.
@@ -32,7 +47,11 @@ def registerPlayer(name):
     Args:
       name: the player's full name (need not be unique).
     """
-
+    connection = connect()
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO PLAYERS(name) VALUES(%s)", (name, ))
+    connection.commit()
+    connection.close()
 
 def playerStandings():
     """Returns a list of the players and their win records, sorted by wins.
@@ -47,7 +66,12 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
-
+    connection = connect()
+    cursor = connection.cursor()
+    cursor.execute("SELECT id_player, name_player, wins, played FROM standings")
+    standings = cursor.fetchall()
+    connection.close()
+    return standings
 
 def reportMatch(winner, loser):
     """Records the outcome of a single match between two players.
@@ -56,7 +80,11 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
- 
+    connection = connect()
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO MATCHES(winner, loser) VALUES(%s, %s)", (winner, loser))
+    connection.commit()
+    connection.close()
  
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
