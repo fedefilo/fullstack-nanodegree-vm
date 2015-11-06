@@ -80,7 +80,8 @@ def playerStandings():
 
 
 def reportMatch(winner, loser):
-    """Records the outcome of a single match between two players.
+    """
+    Records the outcome of a single match between two players.
 
     Args:
       winner:  the id number of the player who won
@@ -103,14 +104,19 @@ def swissPairings():
     to him or her in the standings.
 
     Returns:
+      If there is no winner already returns:
       A list of tuples, each of which contains (id1, name1, id2, name2)
         id1: the first player's unique id
         name1: the first player's name
         id2: the second player's unique id
         name2: the second player's name
+      If there is already a winner, returns a string informing it.
     """
     ps = playerStandings()
     pairs = []
-    for i in range(0, len(ps), 2):
-        pairs.append((ps[i][0], ps[i][1], ps[i + 1][0], ps[i + 1][1]))
-    return pairs
+    if ps[0][2] == ps[1][2]: 
+        for i in range(0, len(ps), 2):
+            pairs.append((ps[i][0], ps[i][1], ps[i + 1][0], ps[i + 1][1]))
+        return pairs
+    else:
+        return "There is already a winner!"
