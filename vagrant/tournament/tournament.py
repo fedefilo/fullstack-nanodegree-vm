@@ -26,7 +26,7 @@ def deletePlayers():
     """Remove all the player records from the database."""
     connection = connect()
     cursor = connection.cursor()
-    cursor.execute("DELETE FROM registered_players")
+    cursor.execute("DELETE FROM enrolled_players")
     cursor.execute("DELETE FROM players")
     connection.commit()
     connection.close()
@@ -63,27 +63,29 @@ def registerPlayer(name):
     cursor = connection.cursor()
     cursor.execute("INSERT INTO PLAYERS(name) VALUES(%s)", (name, ))
     connection.commit()
-    cursor.execute("INSERT INTO registered_players(tournament, player_id) VALUES((SELECT max(id) FROM tournament), (SELECT max(id) FROM players))")
+    cursor.execute("INSERT INTO enrolled_players(tournament, player_id) VALUES((SELECT max(id) FROM tournament), (SELECT max(id) FROM players))")
     connection.commit()
     connection.close()
 
 
-def registerInTournament(player_id):
+def registerInTournament(id_player):
     """Registers player in current tournament.
     Only needed for players that were added for previous tournaments
+    and not the current one.
 
     Args:
       name: the player's id number.
     """
     connection = connect()
     cursor = connection.cursor()
-    cursor.execute("INSERT INTO registered_players(tournament, player_id) VALUES(%i, (SELECT max(id) FROM tournament))", (player_id, ))
+    cursor.execute("INSERT INTO enrolled_players(tournament, player_id) VALUES((SELECT max(id) FROM tournament), %s)", (id_player, ))
     connection.commit()
     connection.close()
 
 
 def playerStandings():
-    """Returns a list of the players and their win records, sorted by wins.
+    """Returns a list of the players and their win records in the current 
+    tournament, sorted by wins.
 
     The first entry in the list should be the player in first place, or a
     player tied for first place if there is currently a tie.
@@ -137,7 +139,7 @@ def reportMatch(winner, loser):
     connection = connect()
     cursor = connection.cursor()
     cursor.execute(
-        "INSERT INTO MATCHES(winner, loser, tournament) VALUES(%s, %s, (SELECT max(id) FROM tournament))", (winner, loser))
+        "INSERT INTO matches(winner, loser, tournament) VALUES(%s, %s, (SELECT max(id) FROM tournament))", (winner, loser))
     connection.commit()
     connection.close()
 
@@ -157,7 +159,7 @@ def swissPairings():
         name1: the first player's name
         id2: the second player's unique id
         name2: the second player's name
-      If there is already a winner, returns a string informing it.
+      If there is already a winner, throws an error.
     """
     # Get player standings as list of tuples
     ps = playerStandings()
@@ -176,4 +178,4 @@ def swissPairings():
         # Return the paired matches
         return pairs
     else:
-        return "There is already a winner!"
+        raise ValueError("There is already a winner!")

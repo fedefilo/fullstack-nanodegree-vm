@@ -4,10 +4,6 @@
 
 from tournament import *
 
-# create a new tournament
-
-newTournament()
-
 def testDeleteMatches():
     deleteMatches()
     print "1. Old matches can be deleted."
@@ -139,5 +135,3 @@ if __name__ == '__main__':
     testReportMatches()
     testPairings()
     print "Success!  All tests pass!"
-
-

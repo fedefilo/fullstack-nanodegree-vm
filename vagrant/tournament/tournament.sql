@@ -3,9 +3,22 @@
 -- Project 2
 -- by Federico Vasen
 
--- Table definitions for the tournament project.
+-- Schema definitions for the tournament project.
 -- Intended to follow SQL style guide available 
 -- at http://www.sqlstyle.guide/
+
+-- Connect to other database to delete and recreate schema
+
+
+
+-- Create database schema
+
+DROP DATABASE IF EXISTS tournament;
+CREATE DATABASE tournament;
+
+-- Connect to new database
+
+\c tournament
 
 
 -- Create tournament table
@@ -21,9 +34,9 @@ CREATE TABLE players (
 	name	varchar(255)
 );
 
--- Create table for storing players' registration in tournaments
+-- Create table for storing players' enrollment in tournaments
 
-CREATE TABLE registered_players (
+CREATE TABLE enrolled_players (
 	tournament 		int 	REFERENCES tournament(id),
 	player_id		int 	REFERENCES players(id),
 	PRIMARY KEY (tournament, player_id) 
@@ -60,7 +73,7 @@ SELECT players.id as ID_player,
   FROM players 
   WHERE players.id IN 
   		(SELECT player_id 
-  		   FROM registered_players 
+  		   FROM enrolled_players 
   		  WHERE tournament = (SELECT max(id) FROM tournament))
   ORDER BY wins DESC;
 
@@ -79,3 +92,7 @@ SELECT players.id as ID_player,
   FROM players 
   ORDER BY wins DESC;
 
+-- Initializes tournament table to prevent tournament_test.py from 
+-- throwing an error
+
+INSERT INTO tournament VALUES(nextval('tournament_id_seq'))
