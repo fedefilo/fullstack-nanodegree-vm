@@ -14,7 +14,7 @@ def connect():
 
 
 def deleteMatches():
-    """Remove all the match records from the database."""
+    """Remove all the match records from the database."""   
     connection = connect()
     cursor = connection.cursor()
     cursor.execute("DELETE FROM matches")
@@ -30,9 +30,17 @@ def deletePlayers():
     connection.commit()
     connection.close()
 
+def newTournament():
+    """Sets the database to record data from a new tournament."""
+    connection = connect()
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO tournament VALUES(nextval('tournament_id_seq'))")
+    connection.commit()
+    connection.close()
 
 def countPlayers():
-    """Returns the number of players currently registered."""
+    """Returns the number of players currently registered considering 
+    all tournaments in the database."""
     connection = connect()
     cursor = connection.cursor()
     cursor.execute("SELECT count(*) FROM players")
@@ -42,7 +50,7 @@ def countPlayers():
 
 
 def registerPlayer(name):
-    """Adds a player to the tournament database.
+    """Adds a player to the database.
 
     The database assigns a unique serial id number for the player.  (This
     should be handled by your SQL database schema, not in your Python code.)
@@ -73,7 +81,29 @@ def playerStandings():
     connection = connect()
     cursor = connection.cursor()
     cursor.execute(
-        "SELECT id_player, name_player, wins, played FROM standings")
+        "SELECT id_player, name_player, wins FROM standings")
+    standings = cursor.fetchall()
+    connection.close()
+    return standings
+
+
+def historicalStandings():
+    """Returns a list of the players and their win records, sorted by wins,
+    considering all tournaments.
+    The first entry in the list should be the player in first place, or a
+    player tied for first place if there is currently a tie.
+
+    Returns:
+      A list of tuples, each of which contains (id, name, wins, matches):
+        id: the player's unique id (assigned by the database)
+        name: the player's full name (as registered)
+        wins: the number of matches the player has won
+        matches: the number of matches the player has played
+    """
+    connection = connect()
+    cursor = connection.cursor()
+    cursor.execute(
+        "SELECT id_player, name_player, wins, played FROM historicalstandings")
     standings = cursor.fetchall()
     connection.close()
     return standings
@@ -90,7 +120,7 @@ def reportMatch(winner, loser):
     connection = connect()
     cursor = connection.cursor()
     cursor.execute(
-        "INSERT INTO MATCHES(winner, loser) VALUES(%s, %s)", (winner, loser))
+        "INSERT INTO MATCHES(winner, loser, tournament) VALUES(%s, %s, (SELECT max(id) FROM tournament))", (winner, loser))
     connection.commit()
     connection.close()
 
@@ -112,11 +142,21 @@ def swissPairings():
         name2: the second player's name
       If there is already a winner, returns a string informing it.
     """
+    # Get player standings as list of tuples
     ps = playerStandings()
+
+    # Create an empty list to store pairings
     pairs = []
-    if ps[0][2] == ps[1][2]: 
+
+    # Check if there is a winner 
+    # (if there is a winner, its win-count is different from the 2nd best)
+    if ps[0][2] == ps[1][2]:
+
+        # Match player with the next player in the table and add the tuple 
+        # to the list
         for i in range(0, len(ps), 2):
             pairs.append((ps[i][0], ps[i][1], ps[i + 1][0], ps[i + 1][1]))
+        # Return the paired matches
         return pairs
     else:
         return "There is already a winner!"
