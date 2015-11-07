@@ -14,7 +14,7 @@ def connect():
 
 
 def deleteMatches():
-    """Remove all the match records from the database."""   
+    """Remove all the match records from the database."""
     connection = connect()
     cursor = connection.cursor()
     cursor.execute("DELETE FROM matches")
@@ -31,16 +31,19 @@ def deletePlayers():
     connection.commit()
     connection.close()
 
+
 def newTournament():
     """Sets the database to record data from a new tournament."""
     connection = connect()
     cursor = connection.cursor()
-    cursor.execute("INSERT INTO tournament VALUES(nextval('tournament_id_seq'))")
+    cursor.execute(
+        "INSERT INTO tournament VALUES(nextval('tournament_id_seq'))")
     connection.commit()
     connection.close()
 
+
 def countPlayers():
-    """Returns the number of players currently registered considering 
+    """Returns the number of players currently registered considering
     all tournaments in the database."""
     connection = connect()
     cursor = connection.cursor()
@@ -63,7 +66,8 @@ def registerPlayer(name):
     cursor = connection.cursor()
     cursor.execute("INSERT INTO PLAYERS(name) VALUES(%s)", (name, ))
     connection.commit()
-    cursor.execute("INSERT INTO enrolled_players(tournament, player_id) VALUES((SELECT max(id) FROM tournament), (SELECT max(id) FROM players))")
+    cursor.execute(
+        "INSERT INTO enrolled_players(tournament, player_id) VALUES((SELECT max(id) FROM tournament), (SELECT max(id) FROM players))")
     connection.commit()
     connection.close()
 
@@ -78,13 +82,14 @@ def registerInTournament(id_player):
     """
     connection = connect()
     cursor = connection.cursor()
-    cursor.execute("INSERT INTO enrolled_players(tournament, player_id) VALUES((SELECT max(id) FROM tournament), %s)", (id_player, ))
+    cursor.execute(
+        "INSERT INTO enrolled_players(tournament, player_id) VALUES((SELECT max(id) FROM tournament), %s)", (id_player, ))
     connection.commit()
     connection.close()
 
 
 def playerStandings():
-    """Returns a list of the players and their win records in the current 
+    """Returns a list of the players and their win records in the current
     tournament, sorted by wins.
 
     The first entry in the list should be the player in first place, or a
@@ -167,11 +172,11 @@ def swissPairings():
     # Create an empty list to store pairings
     pairs = []
 
-    # Check if there is a winner 
+    # Check if there is a winner
     # (if there is a winner, its win-count is different from the 2nd best)
     if ps[0][2] == ps[1][2]:
 
-        # Match player with the next player in the table and add the tuple 
+        # Match player with the next player in the table and add the tuple
         # to the list
         for i in range(0, len(ps), 2):
             pairs.append((ps[i][0], ps[i][1], ps[i + 1][0], ps[i + 1][1]))
