@@ -26,6 +26,7 @@ def deletePlayers():
     """Remove all the player records from the database."""
     connection = connect()
     cursor = connection.cursor()
+    cursor.execute("DELETE FROM registered_players")
     cursor.execute("DELETE FROM players")
     connection.commit()
     connection.close()
@@ -62,6 +63,22 @@ def registerPlayer(name):
     cursor = connection.cursor()
     cursor.execute("INSERT INTO PLAYERS(name) VALUES(%s)", (name, ))
     connection.commit()
+    cursor.execute("INSERT INTO registered_players(tournament, player_id) VALUES((SELECT max(id) FROM tournament), (SELECT max(id) FROM players))")
+    connection.commit()
+    connection.close()
+
+
+def registerInTournament(player_id):
+    """Registers player in current tournament.
+    Only needed for players that were added for previous tournaments
+
+    Args:
+      name: the player's id number.
+    """
+    connection = connect()
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO registered_players(tournament, player_id) VALUES(%i, (SELECT max(id) FROM tournament))", (player_id, ))
+    connection.commit()
     connection.close()
 
 
@@ -81,7 +98,7 @@ def playerStandings():
     connection = connect()
     cursor = connection.cursor()
     cursor.execute(
-        "SELECT id_player, name_player, wins FROM standings")
+        "SELECT id_player, name_player, wins, played FROM standings")
     standings = cursor.fetchall()
     connection.close()
     return standings

@@ -21,6 +21,14 @@ CREATE TABLE players (
 	name	varchar(255)
 );
 
+-- Create table for storing players' registration in tournaments
+
+CREATE TABLE registered_players (
+	tournament 		int 	REFERENCES tournament(id),
+	player_id		int 	REFERENCES players(id),
+	PRIMARY KEY (tournament, player_id) 
+);
+
 
 -- Create table for storing matches data
 -- players.id is set as FK to avoid inserting matches 
@@ -51,13 +59,9 @@ SELECT players.id as ID_player,
  	   	 WHERE winner = players.id AND matches.tournament = (SELECT max(id) FROM tournament)) AS wins 
   FROM players 
   WHERE players.id IN 
-  		(SELECT winner 
-  		   FROM matches 
-  		  WHERE tournament = (SELECT max(id) FROM tournament) 
-  		  UNION 
-  		  SELECT loser 
-  		    FROM matches 
-  		   WHERE tournament = (SELECT max(id) FROM tournament))
+  		(SELECT player_id 
+  		   FROM registered_players 
+  		  WHERE tournament = (SELECT max(id) FROM tournament))
   ORDER BY wins DESC;
 
 -- Creates a view with the historical standings of all players registered in 
