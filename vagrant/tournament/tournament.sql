@@ -7,9 +7,6 @@
 -- Intended to follow SQL style guide available 
 -- at http://www.sqlstyle.guide/
 
--- Connect to other database to delete and recreate schema
-
-
 
 -- Create database schema
 
